@@ -5,6 +5,9 @@ public class Basket {
     private int totalPrice = 0;
     private int limit;
     private double totalWeight = 0;
+    private static int totalItems = 0;
+    private static int totalCost = 0;
+
 
     public Basket() {
         increaseCount(1);
@@ -22,13 +25,37 @@ public class Basket {
         this.items = this.items + items;
         this.totalPrice = totalPrice;
     }
+    public static int getTotalItems() {
+        return totalItems;
+    }
+
+    public static int getTotalCost() {
+        return totalCost;
+    }
 
     public static int getCount() {
         return count;
     }
 
+    public static void increaseTotalItems(int totalItems) {
+        Basket.totalItems = Basket.totalItems + totalItems;
+    }
+
+    public static void increaseTotalCost(int count, int price) {
+        Basket.totalCost = Basket.totalCost + count * price;
+    }
+
+
     public static void increaseCount(int count) {
         Basket.count = Basket.count + count;
+    }
+
+    public static int allAverageCost() {
+        return Basket.totalCost / Basket.totalItems;
+    }
+
+    public static int averageCostOfBasket() {
+        return Basket.totalCost / Basket.count;
     }
 
     public void add(String name, int price) {
@@ -56,8 +83,10 @@ public class Basket {
 
         items = items + "\n" + name + " - " +
             count + " шт. Вес: " + weight + " - " + price;
+        increaseTotalItems(1);
         totalPrice = totalPrice + count * price;
         totalWeight = totalWeight + weight;
+        increaseTotalCost(count, price);
     }
 
     public void clear() {
