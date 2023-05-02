@@ -1,35 +1,22 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 public class Main {
     public static void main(String[] args) {
 
-        String url = "jdbc:mysql://localhost:3306/skillbox";
-        String user = "root";
-        String pass = "skillbox";
-        try {
-            Connection connection = DriverManager.getConnection(url, user, pass);
-            Statement statement = connection.createStatement();
+        StandardServiceRegistry registry = new StandardServiceRegistryBuilder().configure("hibernate.cfg.xml").build();
+        Metadata metadata = new MetadataSources(registry).getMetadataBuilder().build();
+        SessionFactory sessionFactory = metadata.getSessionFactoryBuilder().build();
 
-            ResultSet resultSet = statement.executeQuery("SELECT course_name, "
-                    + "COUNT(subscription_date) / (MAX(MONTH(subscription_date))" +
-                    " - MIN(MONTH(subscription_date)) + 1) " +
-                    "AS average_count_in_month " +
-                    "FROM purchaselist " +
-                    "WHERE YEAR(subscription_date) = 2018 " +
-                    "GROUP BY course_name");
-            while (resultSet.next()) {
-                System.out.println(resultSet.getString("course_name")
-                        + " - " + resultSet.getString("average_count_in_month"));
-            }
-            resultSet.close();
-            statement.close();
-            connection.close();
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        Session session = sessionFactory.openSession();
+
+        Course course = session.get(Course.class, 1);
+        System.out.println(course.getName() + " - " + course.getStudentsCount() + " студентов");
+
+        sessionFactory.close();
     }
 }
