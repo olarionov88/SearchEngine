@@ -2,34 +2,42 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "Courses")
+@Table(name = "courses")
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String name;
+
     private int duration;
+
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "enum")
     private CourseType type;
+
     private String description;
-    @Column(name = "teacher_id")
-    private int teacherId;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "teacher_id")
+    private Teacher teacher;
+
     @Column(name = "students_count")
     private int studentsCount;
+
     private int price;
+
     @Column(name = "price_per_hour")
     private float pricePerHour;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "Subscriptions",
+    @JoinTable(name = "subscriptions",
             joinColumns = {@JoinColumn(name = "course_id")},
             inverseJoinColumns = {@JoinColumn(name = "student_id")})
     private List<Student> students;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "course_id")
-    List<Subscription> subscriptions;
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<Subscription> subscriptions;
 
     public int getId() {
         return id;
@@ -71,12 +79,12 @@ public class Course {
         this.description = description;
     }
 
-    public int getTeacherId() {
-        return teacherId;
+    public Teacher getTeacher() {
+        return teacher;
     }
 
-    public void setTeacherId(int teacherId) {
-        this.teacherId = teacherId;
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
     }
 
     public int getStudentsCount() {
@@ -110,13 +118,4 @@ public class Course {
     public void setStudents(List<Student> students) {
         this.students = students;
     }
-
-    public List<Subscription> getSubscriptions() {
-        return subscriptions;
-    }
-
-    public void setSubscriptions(List<Subscription> subscriptions) {
-        this.subscriptions = subscriptions;
-    }
 }
-

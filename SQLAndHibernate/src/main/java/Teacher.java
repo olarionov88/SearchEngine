@@ -2,17 +2,13 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "Teachers")
+@Table(name = "teachers")
 public class Teacher {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
     private String name;
-
     private int salary;
-
     private int age;
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -49,13 +45,5 @@ public class Teacher {
 
     public void setAge(int age) {
         this.age = age;
-    }
-
-    public List<Course> getCourses() {
-        return courses;
-    }
-
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
     }
 }
