@@ -1,35 +1,73 @@
+
 import java.util.HashMap;
 import java.util.Random;
 
 public class Bank {
 
-    private Map<String, Account> accounts;
+    private HashMap<Integer, Account> accounts;
     private final Random random = new Random();
 
-    public synchronized boolean isFraud(String fromAccountNum, String toAccountNum, long amount)
-        throws InterruptedException {
+    {
+        accounts = fillAccounts();
+    }
+
+
+    public long getTotalBalance() {
+        return accounts.values().stream().mapToLong(Account::getBalance).sum();
+    }
+
+    private synchronized boolean isFraud(int fromAccountNum, int toAccountNum, long amount)
+            throws InterruptedException {
         Thread.sleep(1000);
         return random.nextBoolean();
     }
 
-    /**
-     * TODO: реализовать метод. Метод переводит деньги между счетами. Если сумма транзакции > 50000,
-     * то после совершения транзакции, она отправляется на проверку Службе Безопасности – вызывается
-     * метод isFraud. Если возвращается true, то делается блокировка счетов (как – на ваше
-     * усмотрение)
-     */
-    public void transfer(String fromAccountNum, String toAccountNum, long amount) {
+    public void transfer(int fromAccountNum, int toAccountNum, int amount)
+            throws InterruptedException {
+        Account fromAccount = accounts.get(fromAccountNum);
+        Account toAccount = accounts.get(toAccountNum);
 
+        if (fromAccount.isBlocked() || toAccount.isBlocked()) {
+            return;
+        }
+
+        transaction(amount, fromAccount, toAccount);
+
+        if (amount > 50000) {
+            if (isFraud(fromAccountNum, toAccountNum, amount)) {
+                transaction(amount, toAccount, fromAccount);
+                fromAccount.blockAccount();
+                toAccount.blockAccount();
+            }
+
+        }
+    }
+
+    private void transaction(int amount, Account fromAccount, Account toAccount) {
+        if (fromAccount.withdrawMoney(amount)) {
+            toAccount.putMoney(amount);
+        }
     }
 
     /**
      * TODO: реализовать метод. Возвращает остаток на счёте.
      */
-    public long getBalance(String accountNum) {
-        return 0;
+    public long getBalance(int accountNum) {
+        Account account = accounts.get(accountNum);
+        return account.getBalance();
     }
 
-    public long getSumAllAccounts() {
-        return 0;
+    public void setAccounts(HashMap<Integer, Account> accounts) {
+        this.accounts = accounts;
+    }
+
+    private static HashMap<Integer, Account> fillAccounts() {
+        HashMap<Integer, Account> accountMap = new HashMap<>();
+        for (int i = 1; i <= 100; i++) {
+            long initialValue = (long) (80000 + 20000 * Math.random());
+            Account account = new Account(i, initialValue);
+            accountMap.put(i, account);
+        }
+        return accountMap;
     }
 }
