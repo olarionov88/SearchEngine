@@ -25,7 +25,7 @@ public class Main {
 
     public static void main(String[] args) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-            System.out.println("Введите адрес сайта");
+            System.out.println("Введите адрес сайта: ");
             url = reader.readLine();
             fileName = new URL(url).getHost().replace(".", "_");
 
