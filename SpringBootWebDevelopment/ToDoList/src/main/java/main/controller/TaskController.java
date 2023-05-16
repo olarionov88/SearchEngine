@@ -1,53 +1,50 @@
 package main.controller;
 
-import main.exception.EmptyFieldException;
-import main.exception.EntityNotFoundException;
-import main.model.Task;
-import main.model.TaskRepository;
+import main.dto.TaskMapper;
+import main.dto.TaskModel;
+import main.service.TaskService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class TaskController {
 
+    private final TaskService service;
+
+    public TaskController(TaskService service) {
+        this.service = service;
+    }
+
     @GetMapping("/tasks")
-    public List<Task> getTasks() {
-        return TaskRepository.getAllTasks();
+    public List<TaskModel> getTasks() {
+        return service.findAll().stream().map(TaskMapper::map).collect(Collectors.toList());
     }
 
     @GetMapping("/tasks/{id}")           // а вдруг мы изменим фронт
-    public Task getTaskById(@PathVariable Integer id) {
-        if (TaskRepository.getTaskById(id) == null) {
-            throw new EntityNotFoundException("Задание отсутствует");
-        } else return TaskRepository.getTaskById(id);
+    public TaskModel getTaskById(@PathVariable Integer id) {
+        return TaskMapper.map(service.findById(id));
     }
 
     @PostMapping("/tasks")
-    public Task addTask(@RequestBody Task task) {
-        if (task.getTitle().isEmpty()) {
-            throw new EmptyFieldException("Нечего добавлять");
-        } else return TaskRepository.addTask(task);
+    public TaskModel addTask(@Valid @RequestBody TaskModel task) {
+        return TaskMapper.map(service.save(TaskMapper.reverseMap(task)));
     }
 
     @PutMapping("/tasks")
-    public Task editTask(@RequestBody Task task) {
-        if (task.getTitle().isEmpty()) {
-            throw new EmptyFieldException("Задание не может быть пустым");
-        } else return TaskRepository.editTask(task);
+    public TaskModel editTask(@Valid @RequestBody TaskModel task) {
+        return TaskMapper.map(service.save(TaskMapper.reverseMap(task)));
     }
 
     @DeleteMapping("/tasks/{id}")
     public void deleteTaskById(@PathVariable Integer id) {
-        if (TaskRepository.getTaskById(id) == null) {
-            throw new EntityNotFoundException("Задание не существует");
-        } else TaskRepository.deleteTask(id);
+        service.deleteById(id);
     }
 
     @DeleteMapping("/tasks")
     public void deleteTasks() {
-        if (TaskRepository.getAllTasks().isEmpty()) {
-            throw new EntityNotFoundException("Задания отсутствуют");
-        } else TaskRepository.deleteAllTasks();
+        service.deleteAll();
     }
 }
