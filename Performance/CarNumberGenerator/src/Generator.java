@@ -42,9 +42,7 @@ public class Generator implements Runnable {
         String numberStr = Integer.toString(number);
         int padSize = numberLength - numberStr.length();
         StringBuilder padNumbers = new StringBuilder();
-        for (int i = 0; i < padSize; i++) {
-            padNumbers.append("0");
-        }
+        padNumbers.append("0".repeat(Math.max(0, padSize)));
         padNumbers.append(numberStr);
         return padNumbers;
     }
