@@ -14,9 +14,9 @@ public class Generator implements Runnable {
         builder = new StringBuilder();
         this.regionCode = regionCode;
     }
-
     @Override
     public void run() {
+        String regionCodeStr = String.valueOf(padNumber(regionCode, 2));
         for (int number = 1; number < 1000; number++) {
             for (char firstLetter : letters) {
                 for (char secondLetter : letters) {
@@ -25,7 +25,8 @@ public class Generator implements Runnable {
                         builder.append(padNumber(number, 3));
                         builder.append(secondLetter);
                         builder.append(thirdLetter);
-                        builder.append(padNumber(regionCode, 2));
+                        //builder.append(padNumber(regionCode, 2));
+                        builder.append(regionCodeStr);
                         builder.append("\n");
 
                     }
