@@ -1,15 +1,27 @@
-public class Loader {
+import java.io.PrintWriter;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Loader
+{
+    public static PrintWriter writer;
     public static void main(String[] args) throws Exception {
+        ExecutorService service = Executors.newFixedThreadPool(4);
+
         long start = System.currentTimeMillis();
-        Writer thread_1 = new Writer(199, "res/numbers_1.txt");
-        Writer thread_2 = new Writer(199, "res/numbers_2.txt");
 
-        thread_1.start();
-        thread_2.start();
+        writer = new PrintWriter("res/numbers.txt");
+        final char letters[] = {'У', 'К', 'Е', 'Н', 'Х', 'В', 'А', 'Р', 'О', 'С', 'М', 'Т'};
 
-        thread_1.join();
-        thread_2.join();
+        for (int regionCode = 1; regionCode < 100; regionCode++) {
+            service.submit(new Generator(regionCode));
+        }
+        service.shutdown();
 
-        System.out.println((System.currentTimeMillis() - start) + " ms");
+        while (!service.isTerminated()) {
+        }
+
+        System.out.println("Время выполнения в 4 потока - " + (System.currentTimeMillis() - start) + " ms");
+
     }
 }
