@@ -7,7 +7,7 @@ public class Generator implements Runnable {
     public PrintWriter writer;
     public StringBuilder builder;
 
-    final char letters[] = {'У', 'К', 'Е', 'Н', 'Х', 'В', 'А', 'Р', 'О', 'С', 'М', 'Т'};
+    final char[] letters = {'У', 'К', 'Е', 'Н', 'Х', 'В', 'А', 'Р', 'О', 'С', 'М', 'Т'};
 
     public Generator(int regionCode) throws FileNotFoundException {
         writer = new PrintWriter("res/numbers" + regionCode + ".txt");
@@ -22,11 +22,11 @@ public class Generator implements Runnable {
                 for (char secondLetter : letters) {
                     for (char thirdLetter : letters) {
                         builder.append(firstLetter);
-                        builder.append(padNumber(number, 3).toString());
+                        builder.append(padNumber(number, 3));
                         builder.append(secondLetter);
                         builder.append(thirdLetter);
-                        builder.append(padNumber(regionCode, 2).toString());
-                        builder.append('\n');
+                        builder.append(padNumber(regionCode, 2));
+                        builder.append("\n");
 
                     }
                 }
