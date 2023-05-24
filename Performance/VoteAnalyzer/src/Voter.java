@@ -2,7 +2,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Voter {
-
     private String name;
     private Date birthDay;
 
