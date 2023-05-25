@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DBConnection {
     private static final String dbUrl = "jdbc:mysql://localhost:3306/voters?" +
@@ -22,8 +19,8 @@ public class DBConnection {
                         "name TINYTEXT NOT NULL, " +
                         "birthDate DATE NOT NULL, " +
                         "`count` INT NOT NULL, " +
-                        "PRIMARY KEY(id))");
-
+                        "PRIMARY KEY(id), " +
+                        "UNIQUE KEY name_date(name(50), birthDate))");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -31,52 +28,24 @@ public class DBConnection {
         return connection;
     }
 
-    public static void countVoter(String name, String birthDay) throws SQLException {
-        birthDay = birthDay.replace('.', '-');
-        String sql = "SELECT id FROM voter_count WHERE birthDate='" + birthDay + "' AND name='" + name + "'";
-        ResultSet rs = DBConnection.getConnection().createStatement().executeQuery(sql);
-        if (!rs.next()) {
-            DBConnection.getConnection().createStatement()
-                    .execute("INSERT INTO voter_count(name, birthDate, `count`) VALUES('" +
-                            name + "', '" + birthDay + "', 1), " +
-                            "ON DUPLICATE KEY UPDATE `count` = `count` + 1");
-        } else {
-            int id = rs.getInt("id");
-            DBConnection.getConnection().createStatement()
-                    .execute("UPDATE voter_count SET `count`=`count`+1 WHERE id=" + id);
-        }
-        rs.close();
+
+    public static void setCommitFalse() throws SQLException {
+        connection.setAutoCommit(false);
     }
 
-    public static void printVoterCounts() throws SQLException {
+    public static void setCommit(PreparedStatement stmt) throws SQLException {
+        connection.commit();
+        stmt.clearBatch();
+    }
+
+    public static void printVoterCounts() throws SQLException
+    {
         String sql = "SELECT name, birthDate, `count` FROM voter_count WHERE `count` > 1";
         ResultSet rs = DBConnection.getConnection().createStatement().executeQuery(sql);
-        while (rs.next()) {
+        while(rs.next())
+        {
             System.out.println("\t" + rs.getString("name") + " (" +
                     rs.getString("birthDate") + ") - " + rs.getInt("count"));
-        }
-    }
-
-    public static void printVoterCountsForSAXParser() {
-
-        String createTable = "Create table double_voters (name Tinytext, count INT)";
-        String insert = "INSERT INTO double_voters (name, count) " +
-                "SELECT name, count(*) from learn.voter_count group by name having count(*) > 1 order by count(*) desc";
-
-        String select = "SELECT name, count FROM double_voters";
-
-        try {
-            connection.createStatement().execute("DROP TABLE IF EXISTS double_voters");
-            connection.createStatement().execute(createTable);
-            connection.createStatement().execute(insert);
-
-            ResultSet rs = connection.createStatement().executeQuery(select);
-
-            while (rs.next()) {
-                System.out.println("\t" + rs.getString("name") + " " + rs.getInt("count"));
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
         }
     }
 }
