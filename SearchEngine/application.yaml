@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    username: root
+    password: skillbox
+    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+indexing-settings:
+  sites:
+    - url: https://radiomv.ru
+      name: Милицейская волна
+    - url: http://www.playback.ru
+      name: PlayBack.ru
+    - url: https://ipfran.ru
+      name: Институт прикладной физики
+
+parsing-settings:
+  user-agent: SearchBot/2.0
+  referer: https://yandex.ru
+  contentType: text/html; charset=utf-8
+  timeout: 15_000 # ms
+  thread-delay: 150 # ms
+  parallelism: 10
+
+search-settings:
+  limit: 20
+  offset: 0
+  threshold: 1000
+  snippetSize: 50
